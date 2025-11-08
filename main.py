@@ -65,7 +65,7 @@ async def fill_pdf(
         "VendaCity": VendaCity,
         "VendaEmail": VendaEmail,
         "CompraName": CompraName,
-        "CompraCPF": CompraDoc,
+        "CompraDoc": CompraDoc,
         "CompraAddress": CompraAddress,
         "CompraCity": CompraCity,
         "CompraEmail": CompraEmail,
