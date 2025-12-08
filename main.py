@@ -515,7 +515,7 @@ async def fill_inclusao_possuidor(
     cidade: str = Form(""),
     Local_e_data: str = Form("")
 ):
-    pdf_template = PDF_MODELS["segunda_via_crv"]
+    pdf_template = PDF_MODELS["inclusao_possuidor"]
     if not pdf_template.exists():
         return {"error": f"Modelo PDF não encontrado em {pdf_template}"}
 
@@ -552,5 +552,5 @@ async def fill_inclusao_possuidor(
     return StreamingResponse(
         io.BytesIO(filled),
         media_type="application/pdf",
-        headers={"Content-Disposition": "attachment; filename=CRV_Segunda_Via.pdf"},
+        headers={"Content-Disposition": "attachment; filename=inclusao_possuidor.pdf"},
     )
