@@ -1,3 +1,4 @@
+from datetime import date
 from fastapi import FastAPI, Form
 from fastapi.responses import StreamingResponse
 from pathlib import Path
@@ -25,6 +26,7 @@ PDF_MODELS={
     "cancelamento_intencao_venda": Path("PDFs/cancelamento_intencao_venda.pdf"),
     "declaracao_endereco": Path("PDFs/declaracao_endereco.pdf"),
     "declaracao_motor": Path("PDFs/declaracao_motor.pdf"),
+    "inclusao_possuidor": Path("PDFs/inclusao_possuidor.pdf")
 }
 
 
@@ -487,3 +489,68 @@ async def declaracao_endereco(
 @app.get("/api/pdf/test")
 def test():
     return {"message": "PDF Controller is working!"}
+
+
+@app.post("/api/pdf/inclusao_possuidor")
+async def fill_inclusao_possuidor(
+    CPF_CNPJ: str = Form(""),
+    RG: str = Form(""),
+    endereco: str = Form(""),
+    bairro: str = Form(""),
+    CEP: str = Form(""),
+    placa_possuidor: str = Form(""),
+    municipio: str = Form(""),
+    chassi: str = Form(""),
+    renavam_possuidor: str = Form(""),
+    marca: str = Form(""),
+    ano_modelo: str = Form(""),
+    cor: str = Form(""),
+    cpfcnpj_possuidor: str = Form(""),
+    RNTRC: str = Form(""),
+    data_termino: str = Form(""),
+    inclusao: bool = Form(False),
+    exclusao: bool = Form(False),
+    placa: str = Form(""),
+    renavam: str = Form(""),
+    cidade: str = Form(""),
+    Local_e_data: str = Form("")
+):
+    pdf_template = PDF_MODELS["segunda_via_crv"]
+    if not pdf_template.exists():
+        return {"error": f"Modelo PDF não encontrado em {pdf_template}"}
+
+    # Dicionário de preenchimento — as chaves DEVEM bater com os "names" no PDF
+    data = {
+        "Nome": Nome,
+        "CPF_CNPJ": CPF_CNPJ,
+        "RG": RG,
+        "placa": placa,
+        "renavam": renavam,
+        "cidade": cidade,
+        "Local_e_data": Local_e_data,
+        "endereco": endereco,
+        "bairro": bairro,
+        "CEP": CEP,
+        "placa_possuidor": placa_possuidor,
+        "municipio": municipio,
+        "chassi": chassi,
+        "renavam_possuidor": renavam_possuidor,
+        "marca": marca,
+        "ano_modelo": ano_modelo,
+        "cor": cor,
+        "cpfcnpj_possuidor": cpfcnpj_possuidor,
+        "RNTRC": RNTRC,
+        "data_termino": data_termino,
+        "inclusao": inclusao,
+        "exclusao": exclusao,
+    }
+
+    # Preenche e achata (flatten) para evitar discrepâncias de renderização
+    pdf = PdfWrapper(str(pdf_template), adobe_mode=True)
+    filled = pdf.fill(data, flatten=True).read()
+
+    return StreamingResponse(
+        io.BytesIO(filled),
+        media_type="application/pdf",
+        headers={"Content-Disposition": "attachment; filename=CRV_Segunda_Via.pdf"},
+    )
